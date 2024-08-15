@@ -1,0 +1,34 @@
+type Subscription {
+  todoState: TodoState!
+}
+
+type TodoState {
+  notes: [Note!]!
+}
+
+interface Note {
+  ID: String!
+  owners: [Owner!]!
+}
+
+type JobNote implements Note {
+  ID: String!
+  owners: [Owner!]!
+}
+
+union Owner = InternalOwner | ExternalOwner
+
+type InternalOwner {
+  attributes: [KeyValue!]!
+  isAdmin: Boolean!
+}
+
+type ExternalOwner {
+  attributes: [KeyValue!]!
+  contact: String!
+}
+
+type KeyValue {
+  key: String!
+  value: String!
+}

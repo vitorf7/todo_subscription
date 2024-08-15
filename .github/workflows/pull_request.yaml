@@ -1,0 +1,57 @@
+name: Pull Request
+on:
+  pull_request:
+    branches:
+      - "master"
+      - "main"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+          cache: true
+      - name: Install gofumpt
+        run: go install mvdan.cc/gofumpt@latest
+      - name: Install golines
+        run: go install github.com/segmentio/golines@v0.11.0
+      - name: Install mockgen
+        run: go install github.com/golang/mock/mockgen@v1.6.0
+      - name: Lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.55.1
+          args: -v --config=.golangci.yaml
+      - name: Test
+        run: make golines-lint test
+  dependabot:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Approve a PR
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Auto merge for Dependabot PRs
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor' }}
+        run: gh pr merge --squash "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
