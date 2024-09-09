@@ -6,7 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.49
 	github.com/NYTimes/gziphandler v1.1.1
 	github.com/gorilla/mux v1.8.1
-	github.com/prometheus/client_golang v1.20.0
+	github.com/prometheus/client_golang v1.20.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/urfave/cli/v2 v2.27.4
 	github.com/vektah/gqlparser/v2 v2.5.16
